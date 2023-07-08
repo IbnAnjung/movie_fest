@@ -44,6 +44,7 @@ func LoadGinRouter(
 
 	// public
 	router.GET("/movie/:id", movieHandler.GetDetailMovie)
+	router.GET("/movie", movieHandler.GetListMoviewPagination)
 
 	return router
 }

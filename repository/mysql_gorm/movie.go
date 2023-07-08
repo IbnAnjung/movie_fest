@@ -87,3 +87,29 @@ func (r *movieRepository) IncreaseViews(ctx *context.Context, movieID int64) err
 		Where("id = ?", movieID).
 		UpdateColumn("views_counter", gorm.Expr("views_counter + ? ", 1)).Error
 }
+
+func (r *movieRepository) GetListPagination(ctx *context.Context, offset, limit int) (movies []enMovie.Movie, totalRaw int64, err error) {
+	db := getTxSessionDB(*ctx, r.db)
+
+	query := db.Model(&models.Movie{}).
+		Order("id").
+		Session(&gorm.Session{})
+
+	if err = query.Count(&totalRaw).Error; err != nil {
+		return
+	}
+
+	mMovies := []models.Movie{}
+	if err = query.Offset(offset).Limit(limit).Find(&mMovies).Error; err != nil {
+		return
+	}
+
+	for _, m := range mMovies {
+		movie := enMovie.Movie{}
+		m.ToEntity(&movie)
+
+		movies = append(movies, movie)
+	}
+
+	return
+}

@@ -24,6 +24,7 @@ type MovieRepository interface {
 	GetMostView(ctx *context.Context) (movie Movie, err error)
 	UpdateMovieMetaData(ctx *context.Context, newMovie *Movie) (err error)
 	IncreaseViews(ctx *context.Context, movieID int64) error
+	GetListPagination(ctx *context.Context, offset, limit int) (movies []Movie, totalRaw int64, err error)
 }
 
 type MovieUseCase interface {
@@ -32,4 +33,5 @@ type MovieUseCase interface {
 	GetMovieDetail(ctx context.Context, movieID int64) (mov MovieDetail, err error)
 	ViewMovie(ctx context.Context, mov MovieDetail) error
 	GetMostView(ctx context.Context) (mov Movie, err error)
+	GetListMovieWithPagination(context.Context, ListMovieWithPaginationInput) (ListMovieWithPaginationOutput, error)
 }

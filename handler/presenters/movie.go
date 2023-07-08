@@ -36,3 +36,14 @@ type MovieMostViewResponse struct {
 	Title string `json:"title"`
 	Views int64  `json:"views"`
 }
+
+type ListMoviePaginationRequest struct {
+	PaginationRequest
+}
+
+type ListMoviePaginationResponse struct {
+	ID    int64  `json:"id"`
+	Title string `json:"title"`
+	Views int64  `json:"views"`
+	Votes int64  `json:"votes"`
+}

@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	enMovie "github.com/IbnAnjung/movie_fest/entity/movie"
+	enUtil "github.com/IbnAnjung/movie_fest/entity/utils"
 	"github.com/IbnAnjung/movie_fest/handler/presenters"
 	"github.com/IbnAnjung/movie_fest/utils"
 	"github.com/gin-gonic/gin"
@@ -123,4 +124,37 @@ func (h movieHandler) GetMostView(c *gin.Context) {
 	}
 
 	utils.SuccessResponse(c, http.StatusOK, "success", response)
+}
+
+func (h movieHandler) GetListMoviewPagination(c *gin.Context) {
+	req := presenters.ListMoviePaginationRequest{}
+
+	if err := c.ShouldBind(&req); err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	output, err := h.movieUC.GetListMovieWithPagination(c, enMovie.ListMovieWithPaginationInput{
+		MetaPagination: enUtil.MetaPagination{
+			Limit: req.Limit,
+			Page:  req.Page,
+		},
+	})
+
+	if err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	response := []presenters.ListMoviePaginationResponse{}
+	for _, movie := range output.Movies {
+		response = append(response, presenters.ListMoviePaginationResponse{
+			ID:    movie.ID,
+			Title: movie.Title,
+			Views: movie.ViewsCounter,
+			Votes: movie.VotesCounter,
+		})
+	}
+
+	utils.PaginationResponse(c, http.StatusOK, "success", output.Meta, response)
 }

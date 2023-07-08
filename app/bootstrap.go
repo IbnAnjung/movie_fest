@@ -59,6 +59,7 @@ func Start(ctx context.Context) (func(), error) {
 	uof := mysql_gorm.NewGormUnitOfWork(gormDb)
 	storage := utils.NewLocalStorage(conf.Http.Host, "videos")
 	stringGenerator := utils.NewStringGenerator(uuid.New())
+	pagination := utils.NewPagination()
 	validator, err := utils.NewValidator()
 	if err != nil {
 		return func() {
@@ -82,7 +83,7 @@ func Start(ctx context.Context) (func(), error) {
 	_ = utils.NewBycrypt()
 
 	// usecase
-	movieUsecase := movieUC.NewMovieUC(uof, storage, validator, stringGenerator, movieRepository, movieGenresRepository, movieHasGenresRepository)
+	movieUsecase := movieUC.NewMovieUC(uof, storage, validator, pagination, stringGenerator, movieRepository, movieGenresRepository, movieHasGenresRepository)
 	movieGenresUseCase := movieGenresUC.NewMovieUC(movieGenresRepository)
 	// router
 	router := LoadGinRouter(*conf, movieUsecase, movieGenresUseCase)
