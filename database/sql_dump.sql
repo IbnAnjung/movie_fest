@@ -29,8 +29,12 @@ CREATE TABLE `movie_genres` (
 CREATE TABLE `movies` (
   `id` bigint unsigned not null AUTO_INCREMENT,
   `filename` varchar(255) NOT NULL,
-  `views_counter` bigint DEFAULT '0',
-  `votes_counter` bigint DEFAULT '0',
+  `title` varchar(100) not null default "unkown",
+  `duration` int NOT NULL default 0,
+  `artists` varchar(255) NOT NULL DEFAULT "",
+  `description` text NOT NULL DEFAULT "",
+  `views_counter` bigint DEFAULT 0,
+  `votes_counter` bigint DEFAULT 0,
   `uploaded_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -53,6 +57,7 @@ CREATE TABLE `movie_has_genres` (
 CREATE TABLE `movie_descriptions` (
   `id` bigint unsigned not null AUTO_INCREMENT,
   `movie_id` bigint unsigned not null,
+  `title` varchar(100) not null,
   `duration` int NOT NULL,
   `artists` varchar(255) DEFAULT NULL,
   `description` text,
