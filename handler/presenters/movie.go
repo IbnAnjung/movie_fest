@@ -13,3 +13,20 @@ type UpdateMovieMetaDataRequest struct {
 	Genres      []int32 `json:"genres"`
 	MovieID     int64   `json:"movie_id"`
 }
+
+type DetailMovieResponse struct {
+	ID           int64                      `json:"id"`
+	Title        string                     `json:"title"`
+	Duration     int64                      `json:"duration"`
+	Artists      string                     `json:"artist"`
+	Genres       []MovieDetailGenreResponse `json:"genres"`
+	Description  string                     `json:"description"`
+	PublicUrl    string                     `json:"public_url"`
+	ViewsCounter int64                      `json:"views_counter"`
+	VotesCounter int64                      `json:"votes_counter"`
+}
+
+type MovieDetailGenreResponse struct {
+	ID   int32  `json:"id"`
+	Name string `json:"name"`
+}

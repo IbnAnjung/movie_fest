@@ -39,3 +39,11 @@ func (r *movieGenresRepository) GetGenresByIDs(ctx *context.Context, genresIDs [
 
 	return
 }
+
+func (r *movieGenresRepository) IncreaseViews(ctx *context.Context, genresIDS []int32) error {
+	db := getTxSessionDB(*ctx, r.db)
+
+	return db.Model(&models.MovieGenres{}).
+		Where("id IN (?)", genresIDS).
+		UpdateColumn("views_counter", gorm.Expr("views_counter + ? ", 1)).Error
+}

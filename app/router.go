@@ -36,5 +36,7 @@ func LoadGinRouter(
 	adminRoute.POST("/movie/upload", moviewHandler.UplodeNewFile)
 	adminRoute.PUT("/movie/meta", moviewHandler.UpdateMetaData)
 
+	router.GET("/movie/:id", moviewHandler.GetDetailMovie)
+
 	return router
 }

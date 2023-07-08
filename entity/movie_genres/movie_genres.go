@@ -10,5 +10,6 @@ type MovieGenres struct {
 }
 
 type MovieGenresRepository interface {
+	IncreaseViews(ctx *context.Context, genresIDS []int32) error
 	GetGenresByIDs(ctx *context.Context, genresIDs []int32) (movieGenres []MovieGenres, err error)
 }

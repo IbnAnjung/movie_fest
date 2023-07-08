@@ -66,3 +66,11 @@ func (r *movieRepository) UpdateMovieMetaData(ctx *context.Context, newMovie *en
 	m.ToEntity(newMovie)
 	return nil
 }
+
+func (r *movieRepository) IncreaseViews(ctx *context.Context, movieID int64) error {
+	db := getTxSessionDB(*ctx, r.db)
+
+	return db.Model(&models.Movie{}).
+		Where("id = ?", movieID).
+		UpdateColumn("views_counter", gorm.Expr("views_counter + ? ", 1)).Error
+}
