@@ -47,3 +47,22 @@ func (h movieHandler) UplodeNewFile(c *gin.Context) {
 		Url: output.PublicUrl,
 	})
 }
+
+func (h movieHandler) UpdateMetaData(c *gin.Context) {
+	req := presenters.UpdateMovieMetaDataRequest{}
+	c.ShouldBindJSON(&req)
+
+	if err := h.movieUC.UpdateMetaData(c, enMovie.UpdateMetaDataInput{
+		Title:       req.Title,
+		Description: req.Description,
+		Duration:    req.Duration,
+		Artists:     req.Artists,
+		Genres:      req.Genres,
+		MovieID:     req.MovieID,
+	}); err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "success", nil)
+}

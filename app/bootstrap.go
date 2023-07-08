@@ -48,7 +48,7 @@ func Start(ctx context.Context) (func(), error) {
 	_ = utils.NewRedisCaching(redisConn)
 
 	// utils
-	gormDb, err := utils.NewGormOrm("mysql", dbconn)
+	gormDb, err := utils.NewGormOrm(conf.App.Mode, "mysql", dbconn)
 	if err != nil {
 		return func() {
 			mysqlCleanup()
@@ -58,9 +58,17 @@ func Start(ctx context.Context) (func(), error) {
 	uof := mysql_gorm.NewGormUnitOfWork(gormDb)
 	storage := utils.NewLocalStorage(conf.Http.Host, "videos")
 	stringGenerator := utils.NewStringGenerator(uuid.New())
+	validator, err := utils.NewValidator()
+	if err != nil {
+		return func() {
+			mysqlCleanup()
+		}, err
+	}
 
 	// repository
 	movieRepository := mysql_gorm.NewMovieRepository(gormDb)
+	movieGenresRepository := mysql_gorm.NewMovieGenresRepository(gormDb)
+	movieHasGenresRepository := mysql_gorm.NewMovieHasGenresRepository(gormDb)
 
 	// validator
 	_, err = utils.NewValidator()
@@ -73,7 +81,7 @@ func Start(ctx context.Context) (func(), error) {
 	_ = utils.NewBycrypt()
 
 	// usecase
-	movieUsecase := movieUC.NewMovieUC(uof, storage, stringGenerator, movieRepository)
+	movieUsecase := movieUC.NewMovieUC(uof, storage, validator, stringGenerator, movieRepository, movieGenresRepository, movieHasGenresRepository)
 
 	// router
 	router := LoadGinRouter(*conf, movieUsecase)

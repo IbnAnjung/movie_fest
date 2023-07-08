@@ -14,17 +14,6 @@ type Validator struct {
 func NewValidator() (Validator, error) {
 	v := validator.New()
 
-	v.RegisterValidation("gender", func(fl validator.FieldLevel) bool {
-		value := fl.Field().String()
-
-		switch value {
-		case "L", "P":
-			return true
-		}
-
-		return false
-	})
-
 	return Validator{
 		validator: *v,
 	}, nil

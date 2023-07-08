@@ -33,7 +33,8 @@ func LoadGinRouter(
 
 	adminMiddleware := BasicAuth(config.Admin.Username, config.Admin.Password)
 	adminRoute := router.Group("/admin", adminMiddleware)
-	adminRoute.POST("/upload", moviewHandler.UplodeNewFile)
+	adminRoute.POST("/movie/upload", moviewHandler.UplodeNewFile)
+	adminRoute.PUT("/movie/meta", moviewHandler.UpdateMetaData)
 
 	return router
 }
