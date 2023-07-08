@@ -3,6 +3,7 @@ package mysql_gorm
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	enMovie "github.com/IbnAnjung/movie_fest/entity/movie"
 	"github.com/IbnAnjung/movie_fest/repository/mysql_gorm/models"
@@ -88,12 +89,24 @@ func (r *movieRepository) IncreaseViews(ctx *context.Context, movieID int64) err
 		UpdateColumn("views_counter", gorm.Expr("views_counter + ? ", 1)).Error
 }
 
-func (r *movieRepository) GetListPagination(ctx *context.Context, offset, limit int) (movies []enMovie.Movie, totalRaw int64, err error) {
+func (r *movieRepository) GetListPagination(ctx *context.Context, offset, limit int, search string) (movies []enMovie.Movie, totalRaw int64, err error) {
 	db := getTxSessionDB(*ctx, r.db)
 
-	query := db.Model(&models.Movie{}).
-		Order("id").
-		Session(&gorm.Session{})
+	m := models.Movie{}.TableName()
+	query := db.Model(&models.Movie{}).Select(fmt.Sprintf("DISTINCT %s.*", m)).
+		Order("id")
+	if search != "" {
+		mg := models.MovieGenres{}.TableName()
+		mhg := models.MovieHasGenres{}.TableName()
+		query.Joins(fmt.Sprintf("JOIN %s ON %s.id = %s.movie_id", mhg, m, mhg)).
+			Joins(fmt.Sprintf("JOIN %s ON %s.movie_genre_id = %s.id", mg, mhg, mg)).
+			Where(fmt.Sprintf("%s.title LIKE ?", m), "%"+search+"%").
+			Or(fmt.Sprintf("%s.description LIKE ?", m), "%"+search+"%").
+			Or(fmt.Sprintf("%s.artists LIKE ?", m), "%"+search+"%").
+			Or(fmt.Sprintf("%s.name LIKE ?", mg), "%"+search+"%")
+	}
+
+	query.Session(&gorm.Session{})
 
 	if err = query.Count(&totalRaw).Error; err != nil {
 		return

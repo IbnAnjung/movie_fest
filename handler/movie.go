@@ -139,6 +139,7 @@ func (h movieHandler) GetListMoviewPagination(c *gin.Context) {
 			Limit: req.Limit,
 			Page:  req.Page,
 		},
+		Search: req.Search,
 	})
 
 	if err != nil {

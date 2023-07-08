@@ -10,7 +10,7 @@ func (uc MovieUC) GetListMovieWithPagination(ctx context.Context, input enMovie.
 
 	uc.pagination.Init(&input.MetaPagination)
 
-	movies, totalRaw, err := uc.movieRepository.GetListPagination(&ctx, input.Offset, input.Limit)
+	movies, totalRaw, err := uc.movieRepository.GetListPagination(&ctx, input.Offset, input.Limit, input.Search)
 	if err != nil {
 		return output, err
 	}
