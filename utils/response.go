@@ -39,7 +39,7 @@ func ErrorResponse(c *gin.Context, httpStatusCode int, message string) {
 	})
 }
 
-func GeneralErrorResponse(c *gin.Context, err error, message string) {
+func GeneralErrorResponse(c *gin.Context, err error) {
 	if err, ok := err.(ValidationError); ok {
 		validationErrors := err.Validator.GetValidationErrors()
 		ErrorValidationResponse(c, err.Error(), validationErrors)
@@ -52,5 +52,5 @@ func GeneralErrorResponse(c *gin.Context, err error, message string) {
 	}
 
 	log.Printf("Internal Server Error: %s", err.Error())
-	ErrorResponse(c, http.StatusInternalServerError, message)
+	ErrorResponse(c, http.StatusInternalServerError, "Internal Server Error")
 }

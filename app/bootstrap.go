@@ -5,7 +5,10 @@ import (
 	"fmt"
 
 	"github.com/IbnAnjung/movie_fest/driver"
+	"github.com/IbnAnjung/movie_fest/repository/mysql_gorm"
+	movieUC "github.com/IbnAnjung/movie_fest/usecase/movie"
 	"github.com/IbnAnjung/movie_fest/utils"
+	"github.com/google/uuid"
 )
 
 func Start(ctx context.Context) (func(), error) {
@@ -44,13 +47,20 @@ func Start(ctx context.Context) (func(), error) {
 
 	_ = utils.NewRedisCaching(redisConn)
 
-	_, err = utils.NewGormOrm("mysql", dbconn)
+	// utils
+	gormDb, err := utils.NewGormOrm("mysql", dbconn)
 	if err != nil {
 		return func() {
 			mysqlCleanup()
 		}, err
 	}
+
+	uof := mysql_gorm.NewGormUnitOfWork(gormDb)
+	storage := utils.NewLocalStorage(conf.Http.Host, "videos")
+	stringGenerator := utils.NewStringGenerator(uuid.New())
+
 	// repository
+	movieRepository := mysql_gorm.NewMovieRepository(gormDb)
 
 	// validator
 	_, err = utils.NewValidator()
@@ -63,8 +73,10 @@ func Start(ctx context.Context) (func(), error) {
 	_ = utils.NewBycrypt()
 
 	// usecase
+	movieUsecase := movieUC.NewMovieUC(uof, storage, stringGenerator, movieRepository)
 
-	router := LoadGinRouter(*conf)
+	// router
+	router := LoadGinRouter(*conf, movieUsecase)
 
 	httpCleanup, err := driver.RunGinHttpServer(ctx, router, driver.LoadHttpConfig(conf.Http.Port))
 	if err != nil {
