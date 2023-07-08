@@ -20,14 +20,24 @@ func NewMovieHasGenresRepository(db *gorm.DB) enMovie.MovieHasGenresRepository {
 }
 
 func (r *movieHasGenresRepository) Add(ctx *context.Context, genres []enMovie.MovieHasGenres) error {
+	if len(genres) == 0 {
+		return nil
+	}
+
 	db := getTxSessionDB(*ctx, r.db)
+	movieIds := []int64{}
 
 	ms := []models.MovieHasGenres{}
 	for _, v := range genres {
+		movieIds = append(movieIds, v.MovieID)
 		m := models.MovieHasGenres{}
 		m.FillFromEntity(v)
 
 		ms = append(ms, m)
+	}
+
+	if err := db.Where("movie_id IN (?)", movieIds).Delete(&models.MovieHasGenres{}).Error; err != nil {
+		return err
 	}
 
 	return db.Create(ms).Error
