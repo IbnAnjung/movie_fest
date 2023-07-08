@@ -4,12 +4,26 @@ import (
 	"log"
 	"net/http"
 
+	enUtil "github.com/IbnAnjung/movie_fest/entity/utils"
 	"github.com/gin-gonic/gin"
 )
 
 type response struct {
 	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
+}
+
+type metaPaginationResponse struct {
+	Limit     int   `json:"limit"`
+	Page      int   `json:"page"`
+	TotalPage int   `json:"total_page"`
+	TotalRaw  int64 `json:"total_raw"`
+}
+
+type paginationResponse struct {
+	Message string                 `json:"message"`
+	Meta    metaPaginationResponse `json:"meta"`
+	Data    interface{}            `json:"data"`
 }
 
 type validationResponse struct {
@@ -21,6 +35,19 @@ func SuccessResponse(c *gin.Context, httpStatusCode int, message string, data in
 	c.JSON(httpStatusCode, response{
 		Message: message,
 		Data:    data,
+	})
+}
+
+func PaginationResponse(c *gin.Context, httpStatusCode int, message string, meta enUtil.MetaPagination, data interface{}) {
+	c.JSON(httpStatusCode, paginationResponse{
+		Message: message,
+		Meta: metaPaginationResponse{
+			Limit:     meta.Limit,
+			Page:      meta.Page,
+			TotalPage: meta.TotalPage,
+			TotalRaw:  meta.TotalRaw,
+		},
+		Data: data,
 	})
 }
 
