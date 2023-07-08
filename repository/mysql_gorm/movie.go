@@ -54,6 +54,19 @@ func (r *movieRepository) GetMovieByID(ctx *context.Context, movieID int64) (mov
 	return
 }
 
+func (r *movieRepository) GetMostView(ctx *context.Context) (movie enMovie.Movie, err error) {
+	db := getTxSessionDB(*ctx, r.db)
+
+	m := models.Movie{}
+	if err = db.Order("views_counter DESC").
+		Find(&m).Error; err != nil {
+		return
+	}
+
+	m.ToEntity(&movie)
+	return
+}
+
 func (r *movieRepository) UpdateMovieMetaData(ctx *context.Context, newMovie *enMovie.Movie) (err error) {
 	db := getTxSessionDB(*ctx, r.db)
 	m := models.Movie{}

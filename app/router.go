@@ -35,6 +35,7 @@ func LoadGinRouter(
 	adminRoute := router.Group("/admin", adminMiddleware)
 	adminRoute.POST("/movie/upload", moviewHandler.UplodeNewFile)
 	adminRoute.PUT("/movie/meta", moviewHandler.UpdateMetaData)
+	adminRoute.GET("/movie/most-views", moviewHandler.GetMostView)
 
 	router.GET("/movie/:id", moviewHandler.GetDetailMovie)
 

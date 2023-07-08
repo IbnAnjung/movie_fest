@@ -108,3 +108,19 @@ func (h movieHandler) GetDetailMovie(c *gin.Context) {
 
 	utils.SuccessResponse(c, http.StatusOK, "success", response)
 }
+
+func (h movieHandler) GetMostView(c *gin.Context) {
+	mov, err := h.movieUC.GetMostView(c)
+	if err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	response := presenters.MovieMostViewResponse{
+		ID:    mov.ID,
+		Title: mov.Title,
+		Views: mov.ViewsCounter,
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "success", response)
+}

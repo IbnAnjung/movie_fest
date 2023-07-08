@@ -21,6 +21,7 @@ type Movie struct {
 type MovieRepository interface {
 	AddMovie(ctx *context.Context, movie *Movie) error
 	GetMovieByID(ctx *context.Context, movieID int64) (movie Movie, err error)
+	GetMostView(ctx *context.Context) (movie Movie, err error)
 	UpdateMovieMetaData(ctx *context.Context, newMovie *Movie) (err error)
 	IncreaseViews(ctx *context.Context, movieID int64) error
 }
@@ -30,4 +31,5 @@ type MovieUseCase interface {
 	UpdateMetaData(ctx context.Context, input UpdateMetaDataInput) (err error)
 	GetMovieDetail(ctx context.Context, movieID int64) (mov MovieDetail, err error)
 	ViewMovie(ctx context.Context, mov MovieDetail) error
+	GetMostView(ctx context.Context) (mov Movie, err error)
 }

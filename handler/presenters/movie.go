@@ -30,3 +30,9 @@ type MovieDetailGenreResponse struct {
 	ID   int32  `json:"id"`
 	Name string `json:"name"`
 }
+
+type MovieMostViewResponse struct {
+	ID    int64  `json:"id"`
+	Title string `json:"title"`
+	Views int64  `json:"views"`
+}
