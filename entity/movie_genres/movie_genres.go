@@ -9,7 +9,12 @@ type MovieGenres struct {
 	VotesCounter int64
 }
 
+type MovieGenresUseCase interface {
+	GetMostView(ctx context.Context) (mg MovieGenres, err error)
+}
+
 type MovieGenresRepository interface {
+	GetMostView(ctx *context.Context) (mg MovieGenres, err error)
 	IncreaseViews(ctx *context.Context, genresIDS []int32) error
 	GetGenresByIDs(ctx *context.Context, genresIDs []int32) (movieGenres []MovieGenres, err error)
 }

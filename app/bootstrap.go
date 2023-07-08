@@ -7,6 +7,7 @@ import (
 	"github.com/IbnAnjung/movie_fest/driver"
 	"github.com/IbnAnjung/movie_fest/repository/mysql_gorm"
 	movieUC "github.com/IbnAnjung/movie_fest/usecase/movie"
+	movieGenresUC "github.com/IbnAnjung/movie_fest/usecase/movie_genres"
 	"github.com/IbnAnjung/movie_fest/utils"
 	"github.com/google/uuid"
 )
@@ -82,9 +83,9 @@ func Start(ctx context.Context) (func(), error) {
 
 	// usecase
 	movieUsecase := movieUC.NewMovieUC(uof, storage, validator, stringGenerator, movieRepository, movieGenresRepository, movieHasGenresRepository)
-
+	movieGenresUseCase := movieGenresUC.NewMovieUC(movieGenresRepository)
 	// router
-	router := LoadGinRouter(*conf, movieUsecase)
+	router := LoadGinRouter(*conf, movieUsecase, movieGenresUseCase)
 
 	httpCleanup, err := driver.RunGinHttpServer(ctx, router, driver.LoadHttpConfig(conf.Http.Port))
 	if err != nil {

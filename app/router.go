@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	enMovie "github.com/IbnAnjung/movie_fest/entity/movie"
+	enMovieGenres "github.com/IbnAnjung/movie_fest/entity/movie_genres"
 	"github.com/IbnAnjung/movie_fest/handler"
 	"github.com/IbnAnjung/movie_fest/utils"
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ import (
 func LoadGinRouter(
 	config Config,
 	movieUC enMovie.MovieUseCase,
+	movieGenresUC enMovieGenres.MovieGenresUseCase,
 ) *gin.Engine {
 
 	if config.App.Mode == "production" {
@@ -29,15 +31,19 @@ func LoadGinRouter(
 	router.Static("/videos", "./public/files")
 
 	//handlers
-	moviewHandler := handler.NewMovieHandler(movieUC)
+	movieHandler := handler.NewMovieHandler(movieUC)
+	movieGenresHandler := handler.NewMovieGenresHandler(movieGenresUC)
 
 	adminMiddleware := BasicAuth(config.Admin.Username, config.Admin.Password)
 	adminRoute := router.Group("/admin", adminMiddleware)
-	adminRoute.POST("/movie/upload", moviewHandler.UplodeNewFile)
-	adminRoute.PUT("/movie/meta", moviewHandler.UpdateMetaData)
-	adminRoute.GET("/movie/most-views", moviewHandler.GetMostView)
+	adminRoute.POST("/movie/upload", movieHandler.UplodeNewFile)
+	adminRoute.PUT("/movie/meta", movieHandler.UpdateMetaData)
+	adminRoute.GET("/movie/most-views", movieHandler.GetMostView)
 
-	router.GET("/movie/:id", moviewHandler.GetDetailMovie)
+	adminRoute.GET("/movie-genres/most-views", movieGenresHandler.GetMostView)
+
+	// public
+	router.GET("/movie/:id", movieHandler.GetDetailMovie)
 
 	return router
 }

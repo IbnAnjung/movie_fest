@@ -47,3 +47,16 @@ func (r *movieGenresRepository) IncreaseViews(ctx *context.Context, genresIDS []
 		Where("id IN (?)", genresIDS).
 		UpdateColumn("views_counter", gorm.Expr("views_counter + ? ", 1)).Error
 }
+
+func (r *movieGenresRepository) GetMostView(ctx *context.Context) (mg enMovieGenres.MovieGenres, err error) {
+	db := getTxSessionDB(*ctx, r.db)
+
+	m := models.MovieGenres{}
+	if err = db.Order("views_counter DESC").
+		Find(&m).Error; err != nil {
+		return
+	}
+
+	m.ToEntity(&mg)
+	return
+}
