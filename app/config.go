@@ -19,12 +19,18 @@ type JwtConfig struct {
 	ExpireDuration int64
 }
 
+type AdminConfig struct {
+	Username string
+	Password string
+}
+
 type Config struct {
 	App   AppConfig
 	Http  HttpConfig
 	Mysql MysqlConfig
 	Redis RedisConfig
 	Jwt   JwtConfig
+	Admin AdminConfig
 }
 
 type HttpConfig struct {
@@ -78,6 +84,8 @@ func LoadConfig() (*Config, error) {
 		return nil, err
 	}
 
+	adminConfig, _ := loadAdminConfig()
+
 	return &Config{
 		App: AppConfig{
 			Name: os.Getenv("APP_NAME"),
@@ -87,6 +95,7 @@ func LoadConfig() (*Config, error) {
 		Mysql: mysqlConfig,
 		Redis: redisConfig,
 		Jwt:   jwtConfig,
+		Admin: adminConfig,
 	}, nil
 }
 
@@ -176,5 +185,12 @@ func loadJwtConfig() (JwtConfig, error) {
 	return JwtConfig{
 		SecretKey:      os.Getenv("JWT_KEY"),
 		ExpireDuration: expireDuration,
+	}, nil
+}
+
+func loadAdminConfig() (AdminConfig, error) {
+	return AdminConfig{
+		Username: os.Getenv("ADMIN_USERNAME"),
+		Password: os.Getenv("ADMIN_PASSWORD"),
 	}, nil
 }
