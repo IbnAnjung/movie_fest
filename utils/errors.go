@@ -3,7 +3,7 @@ package utils
 import (
 	"net/http"
 
-	util_entity "github.com/IbnAnjung/movie_fest/entity/utils"
+	enUtil "github.com/IbnAnjung/movie_fest/entity/utils"
 )
 
 type AppError interface {
@@ -31,7 +31,7 @@ var (
 
 type ValidationError struct {
 	Message   string
-	Validator util_entity.Validator
+	Validator enUtil.Validator
 }
 
 func (e ValidationError) Error() string {

@@ -1,10 +1,13 @@
 package utils
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	enUtil "github.com/IbnAnjung/movie_fest/entity/utils"
+	"golang.org/x/crypto/bcrypt"
+)
 
 type Bcrypt struct{}
 
-func NewBycrypt() Bcrypt {
+func NewBycrypt() enUtil.Crypt {
 	return Bcrypt{}
 }
 

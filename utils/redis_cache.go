@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	util_entity "github.com/IbnAnjung/movie_fest/entity/utils"
+	enUtil "github.com/IbnAnjung/movie_fest/entity/utils"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -21,14 +21,14 @@ var mutex = sync.Mutex{}
 
 func NewRedisCaching(
 	conn *redis.Client,
-) RedisCaching {
+) enUtil.Caching {
 	return RedisCaching{
 		conn:     conn,
 		commands: make(map[int][]interface{}),
 	}
 }
 
-func (r RedisCaching) Set(key string, value interface{}) util_entity.Caching {
+func (r RedisCaching) Set(key string, value interface{}) enUtil.Caching {
 	r.key = key
 	mutex.Lock()
 	r.commands[0] = []interface{}{"SET", key, value}
@@ -36,7 +36,7 @@ func (r RedisCaching) Set(key string, value interface{}) util_entity.Caching {
 	return r
 }
 
-func (r RedisCaching) PushList(key string, value interface{}) util_entity.Caching {
+func (r RedisCaching) PushList(key string, value interface{}) enUtil.Caching {
 	r.key = key
 	mutex.Lock()
 	r.commands[0] = []interface{}{"LPUSH", key, value}
@@ -44,14 +44,14 @@ func (r RedisCaching) PushList(key string, value interface{}) util_entity.Cachin
 	return r
 }
 
-func (r RedisCaching) Expire(duration time.Duration) util_entity.Caching {
+func (r RedisCaching) Expire(duration time.Duration) enUtil.Caching {
 	mutex.Lock()
 	r.commands[1] = []interface{}{"EXPIRE", r.key, duration}
 	mutex.Unlock()
 	return r
 }
 
-func (r RedisCaching) ExpireAt(t time.Time) util_entity.Caching {
+func (r RedisCaching) ExpireAt(t time.Time) enUtil.Caching {
 	mutex.Lock()
 	r.commands[1] = []interface{}{"EXPIREAT", r.key, t.Unix()}
 	mutex.Unlock()

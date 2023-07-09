@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	enUtil "github.com/IbnAnjung/movie_fest/entity/utils"
+
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -22,7 +24,7 @@ func NewJwt(
 	issuer string,
 	signKey string,
 	expireDuration int64,
-) Jwt {
+) enUtil.Jwt {
 	return Jwt{
 		issuer:         issuer,
 		signKey:        signKey,
