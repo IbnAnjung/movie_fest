@@ -46,3 +46,29 @@ func (h authenticationHandler) RegisterUser(c *gin.Context) {
 
 	utils.SuccessResponse(c, http.StatusOK, "success", response)
 }
+
+func (h authenticationHandler) Login(c *gin.Context) {
+	req := presenters.LoginRequest{}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	user, err := h.authUC.Login(c, enAuth.Login{
+		Username: req.Username,
+		Password: req.Password,
+	})
+	if err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	response := presenters.LoginResponse{
+		ID:       user.ID,
+		Username: user.Username,
+		Token:    user.Token,
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "success", response)
+}
