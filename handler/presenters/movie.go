@@ -40,6 +40,7 @@ type MovieMostViewResponse struct {
 type ListMoviePaginationRequest struct {
 	PaginationRequest
 	Search string `form:"search"`
+	Views  string `form:"views"`
 }
 
 type ListMoviePaginationResponse struct {

@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	enMovie "github.com/IbnAnjung/movie_fest/entity/movie"
 	enUtil "github.com/IbnAnjung/movie_fest/entity/utils"
@@ -134,12 +136,29 @@ func (h movieHandler) GetListMoviewPagination(c *gin.Context) {
 		return
 	}
 
+	views := strings.Split(req.Views, ":")
+	minView := int64(0)
+	maxView := int64(0)
+
+	if v, err := strconv.ParseInt(views[0], 10, 64); err == nil {
+		minView = v
+	}
+
+	if len(views) > 1 {
+		if v, err := strconv.ParseInt(views[1], 10, 64); err == nil {
+			maxView = v
+		}
+	}
+
+	fmt.Print("views => ", views, minView, maxView)
 	output, err := h.movieUC.GetListMovieWithPagination(c, enMovie.ListMovieWithPaginationInput{
 		MetaPagination: enUtil.MetaPagination{
 			Limit: req.Limit,
 			Page:  req.Page,
 		},
-		Search: req.Search,
+		Search:   req.Search,
+		MinViews: minView,
+		MaxViews: maxView,
 	})
 
 	if err != nil {
