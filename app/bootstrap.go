@@ -6,6 +6,7 @@ import (
 
 	"github.com/IbnAnjung/movie_fest/driver"
 	"github.com/IbnAnjung/movie_fest/repository/mysql_gorm"
+	authenticationUC "github.com/IbnAnjung/movie_fest/usecase/authentication"
 	movieUC "github.com/IbnAnjung/movie_fest/usecase/movie"
 	movieGenresUC "github.com/IbnAnjung/movie_fest/usecase/movie_genres"
 	"github.com/IbnAnjung/movie_fest/utils"
@@ -61,6 +62,9 @@ func Start(ctx context.Context) (func(), error) {
 	stringGenerator := utils.NewStringGenerator(uuid.New())
 	pagination := utils.NewPagination()
 	validator, err := utils.NewValidator()
+	jwt := utils.NewJwt(conf.App.Name, conf.Jwt.SecretKey, conf.Jwt.ExpireDuration)
+	crypt := utils.NewBycrypt()
+
 	if err != nil {
 		return func() {
 			mysqlCleanup()
@@ -71,6 +75,8 @@ func Start(ctx context.Context) (func(), error) {
 	movieRepository := mysql_gorm.NewMovieRepository(gormDb)
 	movieGenresRepository := mysql_gorm.NewMovieGenresRepository(gormDb)
 	movieHasGenresRepository := mysql_gorm.NewMovieHasGenresRepository(gormDb)
+	userRepository := mysql_gorm.NewUserRepository(gormDb)
+	userTokenRepository := mysql_gorm.NewUserTokenRepository(gormDb)
 
 	// validator
 	_, err = utils.NewValidator()
@@ -80,13 +86,15 @@ func Start(ctx context.Context) (func(), error) {
 		}, err
 	}
 
-	_ = utils.NewBycrypt()
-
 	// usecase
 	movieUsecase := movieUC.NewMovieUC(uof, storage, validator, pagination, stringGenerator, movieRepository, movieGenresRepository, movieHasGenresRepository)
 	movieGenresUseCase := movieGenresUC.NewMovieUC(movieGenresRepository)
+	authenticationUseCase := authenticationUC.NewAuthenticationUC(
+		jwt, crypt, uof, validator, userRepository, userTokenRepository,
+	)
+
 	// router
-	router := LoadGinRouter(*conf, movieUsecase, movieGenresUseCase)
+	router := LoadGinRouter(*conf, movieUsecase, movieGenresUseCase, authenticationUseCase)
 
 	httpCleanup, err := driver.RunGinHttpServer(ctx, router, driver.LoadHttpConfig(conf.Http.Port))
 	if err != nil {

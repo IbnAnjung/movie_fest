@@ -8,8 +8,14 @@ var (
 )
 
 type User struct {
-	ID       string
+	ID       int64
 	Username string
 	Password string
-	Role     UserRole
+}
+
+type UserToken struct {
+	ID      int64
+	UserID  int64
+	Token   string
+	IsBlock bool
 }
