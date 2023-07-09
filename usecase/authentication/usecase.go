@@ -11,6 +11,7 @@ type authenticationUC struct {
 	crypt               enUtils.Crypt
 	uow                 enUtils.UnitOfWork
 	validator           enUtils.Validator
+	stringGenerator     enUtils.StringGenerator
 	userRepository      enUser.UserRepository
 	userTokenRepository enUser.UserTokenRepository
 }
@@ -20,6 +21,7 @@ func NewAuthenticationUC(
 	crypt enUtils.Crypt,
 	uow enUtils.UnitOfWork,
 	validator enUtils.Validator,
+	stringGenerator enUtils.StringGenerator,
 	userRepository enUser.UserRepository,
 	userTokenRepository enUser.UserTokenRepository,
 ) enAuth.AuthenticationUsecase {
@@ -28,6 +30,7 @@ func NewAuthenticationUC(
 		uow:                 uow,
 		crypt:               crypt,
 		validator:           validator,
+		stringGenerator:     stringGenerator,
 		userRepository:      userRepository,
 		userTokenRepository: userTokenRepository,
 	}

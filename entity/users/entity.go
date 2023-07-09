@@ -1,5 +1,7 @@
 package user
 
+import "time"
+
 type UserRole string
 
 var (
@@ -14,8 +16,13 @@ type User struct {
 }
 
 type UserToken struct {
-	ID      int64
-	UserID  int64
-	Token   string
-	IsBlock bool
+	ID     int64
+	UserID int64
+	Token  UserTokenDetail
+}
+
+type UserTokenDetail struct {
+	ID        string
+	Token     string
+	ExpiresAt time.Time
 }

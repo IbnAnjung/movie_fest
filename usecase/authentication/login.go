@@ -2,6 +2,7 @@ package authentication
 
 import (
 	"context"
+	"fmt"
 
 	enAuth "github.com/IbnAnjung/movie_fest/entity/authentication"
 	enUser "github.com/IbnAnjung/movie_fest/entity/users"
@@ -39,8 +40,8 @@ func (uc *authenticationUC) Login(ctx context.Context, input enAuth.Login) (outp
 		return
 	}
 
-	userToken, err := uc.jwt.GenerateToken(enAuth.UserJwtClaims{
-		ID:       user.ID,
+	tokenDetail, err := uc.jwt.GenerateToken(&enAuth.UserJwtClaims{
+		UserID:   user.ID,
 		Username: user.Username,
 	})
 	if err != nil {
@@ -49,8 +50,14 @@ func (uc *authenticationUC) Login(ctx context.Context, input enAuth.Login) (outp
 
 	newUserToken := enUser.UserToken{
 		UserID: user.ID,
-		Token:  userToken,
+		Token: enUser.UserTokenDetail{
+			ID:        tokenDetail.ID,
+			Token:     tokenDetail.Token,
+			ExpiresAt: tokenDetail.ExpiresAt,
+		},
 	}
+
+	fmt.Println("expire => ", tokenDetail.ExpiresAt.Format("2006-01-02 15:04:05"))
 
 	if err = uc.userTokenRepository.StoreToken(&ctx, &newUserToken); err != nil {
 		return
@@ -58,7 +65,7 @@ func (uc *authenticationUC) Login(ctx context.Context, input enAuth.Login) (outp
 
 	output.ID = user.ID
 	output.Username = user.Username
-	output.Token = userToken
+	output.Token = tokenDetail.Token
 
 	return
 }

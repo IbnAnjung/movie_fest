@@ -59,8 +59,8 @@ func (uc *authenticationUC) RegisterUser(ctx context.Context, input enAuth.Regis
 		return
 	}
 
-	userToken, err := uc.jwt.GenerateToken(enAuth.UserJwtClaims{
-		ID:       newUser.ID,
+	tokenDetail, err := uc.jwt.GenerateToken(&enAuth.UserJwtClaims{
+		UserID:   newUser.ID,
 		Username: newUser.Username,
 	})
 	if err != nil {
@@ -69,7 +69,11 @@ func (uc *authenticationUC) RegisterUser(ctx context.Context, input enAuth.Regis
 
 	newUserToken := enUser.UserToken{
 		UserID: newUser.ID,
-		Token:  userToken,
+		Token: enUser.UserTokenDetail{
+			ID:        tokenDetail.ID,
+			Token:     tokenDetail.Token,
+			ExpiresAt: tokenDetail.ExpiresAt,
+		},
 	}
 
 	if err = uc.userTokenRepository.StoreToken(&txContext, &newUserToken); err != nil {
@@ -81,7 +85,7 @@ func (uc *authenticationUC) RegisterUser(ctx context.Context, input enAuth.Regis
 
 	output.ID = newUser.ID
 	output.Username = newUser.Username
-	output.Token = userToken
+	output.Token = tokenDetail.Token
 
 	return
 }

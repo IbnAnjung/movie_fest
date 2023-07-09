@@ -10,9 +10,10 @@ import (
 )
 
 type Jwt struct {
-	issuer         string
-	signKey        string
-	expireDuration int64
+	issuer          string
+	signKey         string
+	expireDuration  int64
+	stringGenerator enUtil.StringGenerator
 }
 
 type jwtClaims struct {
@@ -24,15 +25,18 @@ func NewJwt(
 	issuer string,
 	signKey string,
 	expireDuration int64,
+	stringGenerator enUtil.StringGenerator,
 ) enUtil.Jwt {
 	return Jwt{
-		issuer:         issuer,
-		signKey:        signKey,
-		expireDuration: expireDuration,
+		issuer:          issuer,
+		signKey:         signKey,
+		expireDuration:  expireDuration,
+		stringGenerator: stringGenerator,
 	}
 }
 
-func (j Jwt) GenerateToken(claims interface{}) (signToken string, err error) {
+func (j Jwt) GenerateToken(claims enUtil.JwtClaim) (tokenDetail enUtil.JwtTokenDetail, err error) {
+	claims.GenerateID(j.stringGenerator.UUID())
 	jwtclaims := jwtClaims{}
 	jwtclaims.Issuer = j.issuer
 	jwtclaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Duration(j.expireDuration) * time.Minute))
@@ -41,7 +45,11 @@ func (j Jwt) GenerateToken(claims interface{}) (signToken string, err error) {
 	jwtclaims.Claims = claims
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwtclaims)
-	signToken, err = token.SignedString([]byte(j.signKey))
+	signToken, err := token.SignedString([]byte(j.signKey))
+
+	tokenDetail.ID = claims.GetID()
+	tokenDetail.Token = signToken
+	tokenDetail.ExpiresAt = jwtclaims.ExpiresAt.Time
 
 	return
 }
