@@ -72,3 +72,18 @@ func (h authenticationHandler) Login(c *gin.Context) {
 
 	utils.SuccessResponse(c, http.StatusOK, "success", response)
 }
+
+func (h authenticationHandler) Logout(c *gin.Context) {
+	claims, err := getUserJwt(c)
+	if err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	if err := h.authUC.Logout(c, claims.ID); err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "success", nil)
+}

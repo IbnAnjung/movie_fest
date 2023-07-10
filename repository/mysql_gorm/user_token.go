@@ -3,6 +3,7 @@ package mysql_gorm
 import (
 	"context"
 	"errors"
+	"strconv"
 
 	enUser "github.com/IbnAnjung/movie_fest/entity/users"
 	"github.com/IbnAnjung/movie_fest/repository/mysql_gorm/models"
@@ -51,4 +52,15 @@ func (r *userTokenRepository) GetToken(ctx *context.Context, userToken *enUser.U
 
 	m.ToEntity(userToken)
 	return
+}
+
+func (r *userTokenRepository) DeleteToken(ctx *context.Context, id string) (err error) {
+	db := getTxSessionDB(*ctx, r.db)
+
+	inID, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return err
+	}
+
+	return db.Where("id = ?", inID).Delete(&models.UserToken{}).Error
 }

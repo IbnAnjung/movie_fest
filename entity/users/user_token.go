@@ -20,4 +20,5 @@ type UserTokenDetail struct {
 type UserTokenRepository interface {
 	StoreToken(ctx *context.Context, userToken *UserToken) (err error)
 	GetToken(ctx *context.Context, userToken *UserToken) (err error)
+	DeleteToken(ctx *context.Context, id string) (err error)
 }

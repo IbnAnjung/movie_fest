@@ -58,3 +58,9 @@ func (r *userTokenRepository) GetToken(ctx *context.Context, userToken *enUser.U
 	m.ToEntity(userToken)
 	return
 }
+
+func (r *userTokenRepository) DeleteToken(ctx *context.Context, id string) (err error) {
+	m := models.UserToken{}
+	m.TokenID = id
+	return r.client.Del(*ctx, m.Key()).Err()
+}

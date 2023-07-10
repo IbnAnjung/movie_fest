@@ -95,7 +95,7 @@ func Start(ctx context.Context) (func(), error) {
 	)
 
 	// router
-	router := LoadGinRouter(*conf, movieUsecase, movieGenresUseCase, authenticationUseCase)
+	router := LoadGinRouter(*conf, stringGenerator, userTokenRepository, movieUsecase, movieGenresUseCase, authenticationUseCase)
 
 	httpCleanup, err := driver.RunGinHttpServer(ctx, router, driver.LoadHttpConfig(conf.Http.Port))
 	if err != nil {

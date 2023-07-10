@@ -1,11 +1,14 @@
 package app
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
 	enAuth "github.com/IbnAnjung/movie_fest/entity/authentication"
+	enUser "github.com/IbnAnjung/movie_fest/entity/users"
 	enUtils "github.com/IbnAnjung/movie_fest/entity/utils"
 	"github.com/IbnAnjung/movie_fest/utils"
 	"github.com/gin-gonic/gin"
@@ -24,7 +27,7 @@ func BasicAuth(username, password string) gin.HandlerFunc {
 	}
 }
 
-func AuthMiddleware(conf Config, stringGenerator enUtils.StringGenerator) gin.HandlerFunc {
+func AuthMiddleware(conf Config, stringGenerator enUtils.StringGenerator, userRepository enUser.UserTokenRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		jwt := utils.NewJwt(conf.App.Name, conf.Jwt.SecretKey, conf.Jwt.ExpireDuration, stringGenerator)
 
@@ -63,9 +66,18 @@ func AuthMiddleware(conf Config, stringGenerator enUtils.StringGenerator) gin.Ha
 
 		json.Unmarshal(jsonClaims, &userJwtClaims)
 
+		ctx := context.Background()
+		tokenDetail := enUser.UserTokenDetail{ID: userJwtClaims.ID}
+
+		if err := userRepository.GetToken(&ctx, &enUser.UserToken{Token: tokenDetail}); err != nil {
+			utils.ErrorResponse(c, http.StatusUnauthorized, "expired token")
+			c.Abort()
+			return
+		}
+
+		fmt.Println("set =>", string(enAuth.JwtKey_User))
 		c.Set(string(enAuth.JwtKey_User), userJwtClaims)
 
 		c.Next()
-
 	}
 }

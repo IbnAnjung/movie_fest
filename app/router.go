@@ -6,6 +6,8 @@ import (
 	enAuthentication "github.com/IbnAnjung/movie_fest/entity/authentication"
 	enMovie "github.com/IbnAnjung/movie_fest/entity/movie"
 	enMovieGenres "github.com/IbnAnjung/movie_fest/entity/movie_genres"
+	enUser "github.com/IbnAnjung/movie_fest/entity/users"
+	enUtils "github.com/IbnAnjung/movie_fest/entity/utils"
 	"github.com/IbnAnjung/movie_fest/handler"
 	"github.com/IbnAnjung/movie_fest/utils"
 	"github.com/gin-gonic/gin"
@@ -13,6 +15,8 @@ import (
 
 func LoadGinRouter(
 	config Config,
+	stringGenerator enUtils.StringGenerator,
+	userTokenRepository enUser.UserTokenRepository,
 	movieUC enMovie.MovieUseCase,
 	movieGenresUC enMovieGenres.MovieGenresUseCase,
 	authenticationUC enAuthentication.AuthenticationUsecase,
@@ -32,12 +36,15 @@ func LoadGinRouter(
 	// static route
 	router.Static("/videos", "./public/files")
 
+	//middlewares
+	adminMiddleware := BasicAuth(config.Admin.Username, config.Admin.Password)
+	userMiddleware := AuthMiddleware(config, stringGenerator, userTokenRepository)
+
 	//handlers
 	movieHandler := handler.NewMovieHandler(movieUC)
 	movieGenresHandler := handler.NewMovieGenresHandler(movieGenresUC)
 	authHandler := handler.NewAuthenticationHandler(authenticationUC)
 
-	adminMiddleware := BasicAuth(config.Admin.Username, config.Admin.Password)
 	adminRoute := router.Group("/admin", adminMiddleware)
 	adminRoute.POST("/movie/upload", movieHandler.UplodeNewFile)
 	adminRoute.PUT("/movie/meta", movieHandler.UpdateMetaData)
@@ -53,5 +60,6 @@ func LoadGinRouter(
 	authRoute := router.Group("/auth")
 	authRoute.POST("/register", authHandler.RegisterUser)
 	authRoute.POST("/login", authHandler.Login)
+	authRoute.Use(userMiddleware).POST("/logout", authHandler.Logout)
 	return router
 }
