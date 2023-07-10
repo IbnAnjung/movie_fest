@@ -1,51 +1,57 @@
-package mysql_gorm
+package redis
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"time"
 
 	enUser "github.com/IbnAnjung/movie_fest/entity/users"
-	"github.com/IbnAnjung/movie_fest/repository/mysql_gorm/models"
+	"github.com/IbnAnjung/movie_fest/repository/redis/models"
 	"github.com/IbnAnjung/movie_fest/utils"
-	"gorm.io/gorm"
+	"github.com/redis/go-redis/v9"
 )
 
 type userTokenRepository struct {
-	db *gorm.DB
+	client *redis.Client
 }
 
-func NewUserTokenRepository(db *gorm.DB) enUser.UserTokenRepository {
+func NewUserTokenRepository(client *redis.Client) enUser.UserTokenRepository {
 	return &userTokenRepository{
-		db: db,
+		client: client,
 	}
 }
 
 func (r *userTokenRepository) StoreToken(ctx *context.Context, userToken *enUser.UserToken) (err error) {
-	db := getTxSessionDB(*ctx, r.db)
-
 	m := models.UserToken{}
 	m.FillFromEntity(*userToken)
 
-	err = db.Create(&m).Error
+	jm, err := json.Marshal(m)
+	if err != nil {
+		return err
+	}
 
-	m.ToEntity(userToken)
-	return
+	return r.client.Set(*ctx, m.Key(), jm, time.Until(userToken.Token.ExpiresAt)).Err()
 }
 
 func (r *userTokenRepository) GetToken(ctx *context.Context, userToken *enUser.UserToken) (err error) {
-	db := getTxSessionDB(*ctx, r.db)
-
 	m := models.UserToken{}
 	m.FillFromEntity(*userToken)
 
-	err = db.Where("id = ?", m.ID).First(&m).Error
+	val, err := r.client.Get(*ctx, m.Key()).Result()
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, redis.Nil) {
 			e := utils.DataNotFoundError
 			e.Message = "Token Not Found"
 			err = e
 		}
 
+		return err
+	}
+
+	fmt.Println(val)
+	if err = json.Unmarshal([]byte(val), &m); err != nil {
 		return err
 	}
 

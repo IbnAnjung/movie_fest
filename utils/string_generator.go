@@ -6,15 +6,12 @@ import (
 )
 
 type stringGenerator struct {
-	uuid uuid.UUID
 }
 
-func NewStringGenerator(uuid uuid.UUID) enUtil.StringGenerator {
-	return stringGenerator{
-		uuid: uuid,
-	}
+func NewStringGenerator() enUtil.StringGenerator {
+	return stringGenerator{}
 }
 
 func (g stringGenerator) UUID() string {
-	return g.uuid.String()
+	return uuid.New().String()
 }

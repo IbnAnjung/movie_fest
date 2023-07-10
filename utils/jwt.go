@@ -50,7 +50,6 @@ func (j Jwt) GenerateToken(claims enUtil.JwtClaim) (tokenDetail enUtil.JwtTokenD
 	tokenDetail.ID = claims.GetID()
 	tokenDetail.Token = signToken
 	tokenDetail.ExpiresAt = jwtclaims.ExpiresAt.Time
-
 	return
 }
 

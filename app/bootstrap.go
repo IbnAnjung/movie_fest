@@ -6,11 +6,11 @@ import (
 
 	"github.com/IbnAnjung/movie_fest/driver"
 	"github.com/IbnAnjung/movie_fest/repository/mysql_gorm"
+	"github.com/IbnAnjung/movie_fest/repository/redis"
 	authenticationUC "github.com/IbnAnjung/movie_fest/usecase/authentication"
 	movieUC "github.com/IbnAnjung/movie_fest/usecase/movie"
 	movieGenresUC "github.com/IbnAnjung/movie_fest/usecase/movie_genres"
 	"github.com/IbnAnjung/movie_fest/utils"
-	"github.com/google/uuid"
 )
 
 func Start(ctx context.Context) (func(), error) {
@@ -47,7 +47,7 @@ func Start(ctx context.Context) (func(), error) {
 		}, err
 	}
 
-	_ = utils.NewRedisCaching(redisConn)
+	// caching := utils.NewRedisCaching(redisConn)
 
 	// utils
 	gormDb, err := utils.NewGormOrm(conf.App.Mode, "mysql", dbconn)
@@ -59,10 +59,10 @@ func Start(ctx context.Context) (func(), error) {
 
 	uof := mysql_gorm.NewGormUnitOfWork(gormDb)
 	storage := utils.NewLocalStorage(conf.Http.Host, "videos")
-	stringGenerator := utils.NewStringGenerator(uuid.New())
+	stringGenerator := utils.NewStringGenerator()
 	pagination := utils.NewPagination()
 	validator, err := utils.NewValidator()
-	jwt := utils.NewJwt(conf.App.Name, conf.Jwt.SecretKey, conf.Jwt.ExpireDuration)
+	jwt := utils.NewJwt(conf.App.Name, conf.Jwt.SecretKey, conf.Jwt.ExpireDuration, stringGenerator)
 	crypt := utils.NewBycrypt()
 
 	if err != nil {
@@ -76,7 +76,8 @@ func Start(ctx context.Context) (func(), error) {
 	movieGenresRepository := mysql_gorm.NewMovieGenresRepository(gormDb)
 	movieHasGenresRepository := mysql_gorm.NewMovieHasGenresRepository(gormDb)
 	userRepository := mysql_gorm.NewUserRepository(gormDb)
-	userTokenRepository := mysql_gorm.NewUserTokenRepository(gormDb)
+	// userTokenRepository := mysql_gorm.NewUserTokenRepository(gormDb)
+	userTokenRepository := redis.NewUserTokenRepository(redisConn)
 
 	// validator
 	_, err = utils.NewValidator()
@@ -90,7 +91,7 @@ func Start(ctx context.Context) (func(), error) {
 	movieUsecase := movieUC.NewMovieUC(uof, storage, validator, pagination, stringGenerator, movieRepository, movieGenresRepository, movieHasGenresRepository)
 	movieGenresUseCase := movieGenresUC.NewMovieUC(movieGenresRepository)
 	authenticationUseCase := authenticationUC.NewAuthenticationUC(
-		jwt, crypt, uof, validator, userRepository, userTokenRepository,
+		jwt, crypt, uof, validator, stringGenerator, userRepository, userTokenRepository,
 	)
 
 	// router

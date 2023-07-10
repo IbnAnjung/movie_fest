@@ -9,7 +9,7 @@ type UserJwtClaims struct {
 }
 
 func (c *UserJwtClaims) GenerateID(randomString string) {
-	c.ID = fmt.Sprintf("user_token:%d-%s", c.UserID, randomString)
+	c.ID = fmt.Sprintf("%d-%s", c.UserID, randomString)
 }
 
 func (c *UserJwtClaims) GetID() string {
