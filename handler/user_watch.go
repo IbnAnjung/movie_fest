@@ -74,3 +74,33 @@ func (h userWatchHandler) Playback(c *gin.Context) {
 
 	utils.SuccessResponse(c, http.StatusOK, "success", nil)
 }
+
+func (h userWatchHandler) Histories(c *gin.Context) {
+	claims, err := getUserJwt(c)
+	if err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	histories, err := h.userWatchUC.History(c, enUserWatch.HistoryInput{
+		UserID: claims.UserID,
+	})
+
+	if err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	response := []presenters.UserWathHistoriesRespones{}
+	for _, v := range histories {
+		response = append(response, presenters.UserWathHistoriesRespones{
+			MovieID:     v.MovieID,
+			Title:       v.Title,
+			Description: v.Description,
+			Artists:     v.Artists,
+			Duration:    int64(v.Duration.Seconds()),
+		})
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "success", response)
+}

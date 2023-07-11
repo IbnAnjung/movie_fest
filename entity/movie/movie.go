@@ -22,6 +22,7 @@ type Movie struct {
 type MovieRepository interface {
 	AddMovie(ctx *context.Context, movie *Movie) error
 	GetMovieByID(ctx *context.Context, movieID int64) (movie Movie, err error)
+	GetMovieByIDs(ctx *context.Context, movieIDs []int64) (movie []Movie, err error)
 	GetMostView(ctx *context.Context) (movie Movie, err error)
 	GetAllMovieViews(ctx *context.Context, input GetViewsInput) (movie []Movie, err error)
 	GetMostVotes(ctx *context.Context) (movie Movie, err error)

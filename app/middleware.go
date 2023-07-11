@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -75,7 +74,6 @@ func AuthMiddleware(conf Config, stringGenerator enUtils.StringGenerator, userRe
 			return
 		}
 
-		fmt.Println("set =>", string(enAuth.JwtKey_User))
 		c.Set(string(enAuth.JwtKey_User), userJwtClaims)
 
 		c.Next()

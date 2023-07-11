@@ -55,6 +55,29 @@ func (r *movieRepository) GetMovieByID(ctx *context.Context, movieID int64) (mov
 	return
 }
 
+func (r *movieRepository) GetMovieByIDs(ctx *context.Context, movieIDs []int64) (movies []enMovie.Movie, err error) {
+	db := getTxSessionDB(*ctx, r.db)
+
+	m := []models.Movie{}
+	if err = db.Where("id in (?)", movieIDs).
+		Find(&m).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			e := utils.DataNotFoundError
+			e.Message = "Movie Not Found"
+			err = e
+		}
+
+		return
+	}
+	for _, v := range m {
+		movie := enMovie.Movie{}
+		v.ToEntity(&movie)
+
+		movies = append(movies, movie)
+	}
+	return
+}
+
 func (r *movieRepository) GetMostView(ctx *context.Context) (movie enMovie.Movie, err error) {
 	db := getTxSessionDB(*ctx, r.db)
 

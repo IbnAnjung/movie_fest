@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"time"
 
 	enUser "github.com/IbnAnjung/movie_fest/entity/users"
@@ -50,7 +49,6 @@ func (r *userTokenRepository) GetToken(ctx *context.Context, userToken *enUser.U
 		return err
 	}
 
-	fmt.Println(val)
 	if err = json.Unmarshal([]byte(val), &m); err != nil {
 		return err
 	}

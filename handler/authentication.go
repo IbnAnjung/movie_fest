@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	enAuth "github.com/IbnAnjung/movie_fest/entity/authentication"
@@ -27,7 +26,6 @@ func (h authenticationHandler) RegisterUser(c *gin.Context) {
 		utils.GeneralErrorResponse(c, err)
 		return
 	}
-	fmt.Println(req)
 	registerdUser, err := h.authUC.RegisterUser(c, enAuth.Register{
 		Username:        req.Username,
 		Password:        req.Password,

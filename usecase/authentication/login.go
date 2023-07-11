@@ -2,7 +2,6 @@ package authentication
 
 import (
 	"context"
-	"fmt"
 
 	enAuth "github.com/IbnAnjung/movie_fest/entity/authentication"
 	enUser "github.com/IbnAnjung/movie_fest/entity/users"
@@ -56,8 +55,6 @@ func (uc *authenticationUC) Login(ctx context.Context, input enAuth.Login) (outp
 			ExpiresAt: tokenDetail.ExpiresAt,
 		},
 	}
-
-	fmt.Println("expire => ", tokenDetail.ExpiresAt.Format("2006-01-02 15:04:05"))
 
 	if err = uc.userTokenRepository.StoreToken(&ctx, &newUserToken); err != nil {
 		return

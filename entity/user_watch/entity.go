@@ -20,10 +20,12 @@ type UserWatch struct {
 type UserWatchUseCase interface {
 	StartPlay(ctx context.Context, input StartPlayInput) (userWatch UserWatch, playbackID string, err error)
 	Playback(ctx context.Context, input PlaybackInput) (err error)
+	History(ctx context.Context, input HistoryInput) (output []UserWathHistory, err error)
 }
 
 type UserWatchRepository interface {
 	CreateUserWatch(ctx context.Context, userWath *UserWatch) error
 	UpdateUserWatch(ctx context.Context, userWath *UserWatch) error
 	GetByID(ctx context.Context, ID int64) (userWath *UserWatch, err error)
+	GetUserWathHistory(ctx context.Context, userID int64) (userWathhistories []UserWathHistory, err error)
 }

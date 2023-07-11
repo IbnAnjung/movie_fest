@@ -26,8 +26,6 @@ func NewRedisCaching(
 }
 
 func (r RedisCaching) Set(ctx context.Context, key string, value interface{}, exp time.Duration) error {
-	log.Print("log dur => ", exp)
-	log.Print("log key => ", key)
 	return r.conn.Set(ctx, key, value, exp).Err()
 }
 

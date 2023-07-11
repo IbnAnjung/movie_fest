@@ -2,7 +2,6 @@ package movie
 
 import (
 	"context"
-	"log"
 
 	enMovie "github.com/IbnAnjung/movie_fest/entity/movie"
 )
@@ -45,12 +44,9 @@ func (uc MovieUC) GetMostView(ctx context.Context) (mov enMovie.Movie, err error
 func (uc MovieUC) GetViews(ctx context.Context, input enMovie.GetViewsInput) (movies []enMovie.Movie, err error) {
 	iv := GetViewInputValidationObject{}
 	iv.set(input)
-	log.Print(input.MinViews)
-	log.Print(input.MaxViews)
 	if err = uc.validator.ValidateStruct(&iv); err != nil {
 		return
 	}
-	log.Print(iv.Sort)
 
 	if input.Sort == "" {
 		input.Sort = "ASC"

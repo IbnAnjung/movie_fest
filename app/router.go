@@ -82,6 +82,7 @@ func LoadGinRouter(
 	movieAuth.GET("/voted", userVoteHandler.GetUserVotedMovies)
 	movieAuth.POST("/start", userWatchHandler.StartWatch)
 	movieAuth.POST("/playback", userWatchHandler.Playback)
+	movieAuth.GET("/history", userWatchHandler.Histories)
 
 	movieRoute.GET("/:id", movieHandler.GetDetailMovie)
 
