@@ -6,16 +6,17 @@ import (
 )
 
 type Movie struct {
-	ID           int64
-	Filename     string
-	Title        string
-	Duration     int64
-	Artists      string
-	Genres       []int32
-	Description  string
-	ViewsCounter int64
-	VotesCounter int64
-	UploadTime   time.Time
+	ID                   int64
+	Filename             string
+	Title                string
+	Duration             int64
+	Artists              string
+	Genres               []int32
+	Description          string
+	ViewsCounter         int64
+	VotesCounter         int64
+	WatchDurationCounter int64
+	UploadTime           time.Time
 }
 
 type MovieRepository interface {

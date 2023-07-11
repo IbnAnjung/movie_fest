@@ -7,15 +7,16 @@ import (
 )
 
 type Movie struct {
-	ID           int64  `gorm:"column:id"`
-	Filename     string `gorm:"column:filename"`
-	Title        string `gorm:"column:title"`
-	Duration     int64  `gorm:"column:duration"`
-	Artists      string `gorm:"column:artists"`
-	Description  string `gorm:"column:description"`
-	ViewsCounter int64  `gorm:"column:views_counter"`
-	VotesCounter int64  `gorm:"column:votes_counter"`
-	UploadedAt   string `gorm:"column:uploaded_at;<-:false"`
+	ID                   int64  `gorm:"column:id"`
+	Filename             string `gorm:"column:filename"`
+	Title                string `gorm:"column:title"`
+	Duration             int64  `gorm:"column:duration"`
+	Artists              string `gorm:"column:artists"`
+	Description          string `gorm:"column:description"`
+	ViewsCounter         int64  `gorm:"column:views_counter"`
+	VotesCounter         int64  `gorm:"column:votes_counter"`
+	WatchDurationCounter int64  `gorm:"column:watch_duration_counter"`
+	UploadedAt           string `gorm:"column:uploaded_at;<-:false"`
 }
 
 func (Movie) TableName() string {
@@ -36,6 +37,7 @@ func (m Movie) ToEntity(en *enMovie.Movie) error {
 	en.Description = m.Description
 	en.ViewsCounter = m.ViewsCounter
 	en.VotesCounter = m.VotesCounter
+	en.WatchDurationCounter = m.WatchDurationCounter
 	en.UploadTime = uploadTime
 
 	return nil
@@ -49,6 +51,6 @@ func (m *Movie) FillFromEntity(en enMovie.Movie) {
 	m.Artists = en.Artists
 	m.Description = en.Description
 	m.ViewsCounter = en.ViewsCounter
-	m.VotesCounter = en.VotesCounter
+	m.WatchDurationCounter = en.WatchDurationCounter
 	m.UploadedAt = en.UploadTime.Format("2006-01-02 15:04:05")
 }

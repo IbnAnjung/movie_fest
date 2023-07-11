@@ -26,15 +26,18 @@ func NewRedisCaching(
 }
 
 func (r RedisCaching) Set(ctx context.Context, key string, value interface{}, exp time.Duration) error {
+	log.Print("log dur => ", exp)
+	log.Print("log key => ", key)
 	return r.conn.Set(ctx, key, value, exp).Err()
 }
 
 func (r RedisCaching) Get(ctx context.Context, key string) (string, error) {
 	val, err := r.conn.Get(ctx, key).Result()
-
-	if err != redis.Nil {
-		log.Printf("GET ERROR %s", err.Error())
-		return "", errors.New("fail get redis data")
+	if err != nil {
+		if err != redis.Nil {
+			log.Printf("GET ERROR %s", err.Error())
+			return "", errors.New("fail get redis data")
+		}
 	}
 
 	return val, nil

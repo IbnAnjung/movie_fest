@@ -48,3 +48,29 @@ func (h userWatchHandler) StartWatch(c *gin.Context) {
 		PlaybackID: playbackID,
 	})
 }
+
+func (h userWatchHandler) Playback(c *gin.Context) {
+	req := presenters.PlaybackRequest{}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	// claims, err := getUserJwt(c)
+	// if err != nil {
+	// 	utils.GeneralErrorResponse(c, err)
+	// 	return
+	// }
+
+	err := h.userWatchUC.Playback(c, enUserWatch.PlaybackInput{
+		PlaybackID: req.PlaybackID,
+		EndTime:    time.Duration(req.Endtime) * time.Second,
+	})
+	if err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "success", nil)
+}

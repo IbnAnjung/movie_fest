@@ -8,3 +8,8 @@ type StartWatchRequest struct {
 type StartWatchResponse struct {
 	PlaybackID string `json:"playback_id"`
 }
+
+type PlaybackRequest struct {
+	PlaybackID string `json:"playback_id"`
+	Endtime    int64  `json:"end_time"`
+}

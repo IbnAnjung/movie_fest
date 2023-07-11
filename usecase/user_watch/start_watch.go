@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	enUserWatch "github.com/IbnAnjung/movie_fest/entity/user_watch"
@@ -42,7 +41,6 @@ func (uc userWatchUC) StartPlay(ctx context.Context, input enUserWatch.StartPlay
 
 		return
 	}
-	log.Println("strt => ", input.StartTime)
 
 	txContext := uc.uow.Begin(ctx)
 
@@ -61,7 +59,14 @@ func (uc userWatchUC) StartPlay(ctx context.Context, input enUserWatch.StartPlay
 
 	playbackId = fmt.Sprintf("%d-%s", userWatch.ID, uc.stringGenerator.UUID())
 	unqueKey := fmt.Sprintf("%s:%s", enUserWatch.PlaybackUniqueIDCacheKey, playbackId)
-	if err = uc.cache.Set(ctx, unqueKey, userWatch.ID, 3*time.Second); err != nil {
+	lockKey := fmt.Sprintf("%s:%s", enUserWatch.PlaybackUniqueIDCacheLockKey, playbackId)
+
+	if err = uc.cache.Set(ctx, unqueKey, userWatch.ID, 10*time.Minute); err != nil {
+		uc.uow.Rollback(txContext)
+		return
+	}
+
+	if err = uc.cache.Set(ctx, lockKey, userWatch.ID, 3*time.Second); err != nil {
 		uc.uow.Rollback(txContext)
 		return
 	}
