@@ -19,5 +19,5 @@ type UserWathHistoriesRespones struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Artists     string `json:"artists"`
-	Duration    int64  `json:"deration"`
+	Duration    int64  `json:"duration"`
 }
