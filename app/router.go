@@ -53,10 +53,14 @@ func LoadGinRouter(
 	adminMovieRoute.POST("/upload", movieHandler.UplodeNewFile)
 	adminMovieRoute.PUT("/meta", movieHandler.UpdateMetaData)
 
+	adminMovieVotesRoute := adminMovieRoute.Group("/votes")
+	adminMovieVotesRoute.GET("/", movieHandler.GetVotes)
+	adminMovieVotesRoute.GET("/most", movieHandler.GetMostVote)
+
 	adminMovieViewsRoute := adminMovieRoute.Group("/views")
 	adminMovieViewsRoute.GET("/", movieHandler.GetViews)
 	adminMovieViewsRoute.GET("/most", movieHandler.GetMostView)
-	// adminMovieRoute.GET("/voted/most")
+
 	adminGenreRoute := adminRoute.Group("/genres")
 	adminGenreViewsRoute := adminGenreRoute.Group("/views")
 	adminGenreViewsRoute.GET("/most", movieGenresHandler.GetMostView)

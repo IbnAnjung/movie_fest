@@ -203,3 +203,62 @@ func (h movieHandler) GetListMoviewPagination(c *gin.Context) {
 
 	utils.PaginationResponse(c, http.StatusOK, "success", output.Meta, response)
 }
+
+func (h movieHandler) GetVotes(c *gin.Context) {
+	req := presenters.MovieVotesRequest{}
+	if err := c.ShouldBind(&req); err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	votes := strings.Split(req.Votes, ":")
+	minVote := int64(0)
+	maxVote := int64(0)
+
+	if v, err := strconv.ParseInt(votes[0], 10, 64); err == nil {
+		minVote = v
+	}
+
+	if len(votes) > 1 {
+		if v, err := strconv.ParseInt(votes[1], 10, 64); err == nil {
+			maxVote = v
+		}
+	}
+
+	mov, err := h.movieUC.GetVotes(c, enMovie.GetVotesInput{
+		MinVotes: minVote,
+		MaxVotes: maxVote,
+		Sort:     req.Sort,
+	})
+	if err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	response := []presenters.MovieMostVoteResponse{}
+	for _, m := range mov {
+		response = append(response, presenters.MovieMostVoteResponse{
+			ID:    m.ID,
+			Title: m.Title,
+			Votes: m.VotesCounter,
+		})
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "success", response)
+}
+
+func (h movieHandler) GetMostVote(c *gin.Context) {
+	mov, err := h.movieUC.GetMostVotes(c)
+	if err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	response := presenters.MovieMostVoteResponse{
+		ID:    mov.ID,
+		Title: mov.Title,
+		Votes: mov.VotesCounter,
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "success", response)
+}

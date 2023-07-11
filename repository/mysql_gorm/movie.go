@@ -175,3 +175,47 @@ func (r *movieRepository) GetAllMovieViews(ctx *context.Context, input enMovie.G
 
 	return
 }
+
+func (r *movieRepository) GetMostVotes(ctx *context.Context) (movie enMovie.Movie, err error) {
+	db := getTxSessionDB(*ctx, r.db)
+
+	m := models.Movie{}
+	if err = db.Order("votes_counter DESC").
+		Find(&m).Error; err != nil {
+		return
+	}
+
+	m.ToEntity(&movie)
+	return
+}
+
+func (r *movieRepository) GetAllMovieVotes(ctx *context.Context, input enMovie.GetVotesInput) (movies []enMovie.Movie, err error) {
+	db := getTxSessionDB(*ctx, r.db)
+
+	m := []models.Movie{}
+
+	query := db.Model(&models.Movie{}).Select("*").
+		Order(fmt.Sprintf("votes_counter %s", input.Sort))
+
+	if input.MinVotes != 0 {
+		query.Where("votes_counter >= ?", input.MinVotes)
+	}
+
+	if input.MaxVotes != 0 {
+		query.Where("votes_counter <= ?", input.MaxVotes)
+	}
+
+	err = query.Find(&m).Error
+	if err != nil {
+		return
+	}
+
+	for _, v := range m {
+		movie := enMovie.Movie{}
+		v.ToEntity(&movie)
+
+		movies = append(movies, movie)
+	}
+
+	return
+}

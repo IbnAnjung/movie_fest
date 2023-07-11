@@ -38,6 +38,10 @@ func (uc MovieUC) ViewMovie(ctx context.Context, mov enMovie.MovieDetail) (err e
 	return
 }
 
+func (uc MovieUC) GetMostView(ctx context.Context) (mov enMovie.Movie, err error) {
+	return uc.movieRepository.GetMostView(&ctx)
+}
+
 func (uc MovieUC) GetViews(ctx context.Context, input enMovie.GetViewsInput) (movies []enMovie.Movie, err error) {
 	iv := GetViewInputValidationObject{}
 	iv.set(input)

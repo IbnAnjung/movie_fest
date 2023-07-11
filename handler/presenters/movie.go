@@ -60,3 +60,14 @@ type MovieViewsRequest struct {
 	Views string `form:"views"`
 	Sort  string `form:"sort"`
 }
+
+type MovieVotesRequest struct {
+	Votes string `form:"votes"`
+	Sort  string `form:"sort"`
+}
+
+type MovieMostVoteResponse struct {
+	ID    int64  `json:"id"`
+	Title string `json:"title"`
+	Votes int64  `json:"votes"`
+}
