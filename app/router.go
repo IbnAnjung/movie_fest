@@ -7,6 +7,7 @@ import (
 	enMovie "github.com/IbnAnjung/movie_fest/entity/movie"
 	enMovieGenres "github.com/IbnAnjung/movie_fest/entity/movie_genres"
 	enUserVote "github.com/IbnAnjung/movie_fest/entity/user_vote"
+	enUserWatch "github.com/IbnAnjung/movie_fest/entity/user_watch"
 	enUser "github.com/IbnAnjung/movie_fest/entity/users"
 	enUtils "github.com/IbnAnjung/movie_fest/entity/utils"
 	"github.com/IbnAnjung/movie_fest/handler"
@@ -20,6 +21,7 @@ func LoadGinRouter(
 	userTokenRepository enUser.UserTokenRepository,
 	movieUC enMovie.MovieUseCase,
 	userVoteUC enUserVote.UserVoteUseCase,
+	userWatchUC enUserWatch.UserWatchUseCase,
 	movieGenresUC enMovieGenres.MovieGenresUseCase,
 	authenticationUC enAuthentication.AuthenticationUsecase,
 ) *gin.Engine {
@@ -47,6 +49,7 @@ func LoadGinRouter(
 	movieGenresHandler := handler.NewMovieGenresHandler(movieGenresUC)
 	authHandler := handler.NewAuthenticationHandler(authenticationUC)
 	userVoteHandler := handler.NewUserVoteHandler(userVoteUC)
+	userWatchHandler := handler.NewUserWatchHandler(userWatchUC)
 
 	adminRoute := router.Group("/admin", adminMiddleware)
 	adminMovieRoute := adminRoute.Group("/movie")
@@ -77,6 +80,7 @@ func LoadGinRouter(
 	movieAuth.POST("/vote", userVoteHandler.Vote)
 	movieAuth.POST("/unvote", userVoteHandler.Unvote)
 	movieAuth.GET("/voted", userVoteHandler.GetUserVotedMovies)
+	movieAuth.POST("/start", userWatchHandler.StartWatch)
 
 	movieRoute.GET("/:id", movieHandler.GetDetailMovie)
 

@@ -11,6 +11,7 @@ import (
 	movieUC "github.com/IbnAnjung/movie_fest/usecase/movie"
 	movieGenresUC "github.com/IbnAnjung/movie_fest/usecase/movie_genres"
 	userVoteUC "github.com/IbnAnjung/movie_fest/usecase/user_vote"
+	userWatchUC "github.com/IbnAnjung/movie_fest/usecase/user_watch"
 	"github.com/IbnAnjung/movie_fest/utils"
 )
 
@@ -63,6 +64,7 @@ func Start(ctx context.Context) (func(), error) {
 	stringGenerator := utils.NewStringGenerator()
 	pagination := utils.NewPagination()
 	validator, err := utils.NewValidator()
+	cache := utils.NewRedisCaching(redisConn)
 	jwt := utils.NewJwt(conf.App.Name, conf.Jwt.SecretKey, conf.Jwt.ExpireDuration, stringGenerator)
 	crypt := utils.NewBycrypt()
 
@@ -78,6 +80,7 @@ func Start(ctx context.Context) (func(), error) {
 	movieHasGenresRepository := mysql_gorm.NewMovieHasGenresRepository(gormDb)
 	userRepository := mysql_gorm.NewUserRepository(gormDb)
 	userVoteRepository := mysql_gorm.NewUserVoteRepository(gormDb)
+	userWatchRepositoy := mysql_gorm.NewUserWatchRepository(gormDb)
 	// userTokenRepository := mysql_gorm.NewUserTokenRepository(gormDb)
 	userTokenRepository := redis.NewUserTokenRepository(redisConn)
 
@@ -102,6 +105,15 @@ func Start(ctx context.Context) (func(), error) {
 		movieHasGenresRepository,
 		userVoteRepository)
 
+	userWatchUserCase := userWatchUC.NewUserVoteUseCase(
+		uof,
+		cache,
+		validator,
+		stringGenerator,
+		movieRepository,
+		userWatchRepositoy,
+	)
+
 	// router
 	router := LoadGinRouter(
 		*conf,
@@ -109,6 +121,7 @@ func Start(ctx context.Context) (func(), error) {
 		userTokenRepository,
 		movieUsecase,
 		userVoteUseCase,
+		userWatchUserCase,
 		movieGenresUseCase,
 		authenticationUseCase)
 
