@@ -16,5 +16,7 @@ type MovieGenresUseCase interface {
 type MovieGenresRepository interface {
 	GetMostView(ctx *context.Context) (mg MovieGenres, err error)
 	IncreaseViews(ctx *context.Context, genresIDS []int32) error
+	IncreaseVotes(ctx *context.Context, genresIDS []int32) error
+	DecreaseVotes(ctx *context.Context, genresIDS []int32) error
 	GetGenresByIDs(ctx *context.Context, genresIDs []int32) (movieGenres []MovieGenres, err error)
 }

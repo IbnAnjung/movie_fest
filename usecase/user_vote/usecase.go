@@ -2,17 +2,31 @@ package user_vote
 
 import (
 	enMovie "github.com/IbnAnjung/movie_fest/entity/movie"
+	enMovieGenres "github.com/IbnAnjung/movie_fest/entity/movie_genres"
 	enUserVote "github.com/IbnAnjung/movie_fest/entity/user_vote"
+	enUtil "github.com/IbnAnjung/movie_fest/entity/utils"
 )
 
 type userVoteUC struct {
-	movieRepository    enMovie.MovieRepository
-	userVoteRepository enUserVote.UserVoteRepository
+	uow                      enUtil.UnitOfWork
+	movieRepository          enMovie.MovieRepository
+	movieGenresRepository    enMovieGenres.MovieGenresRepository
+	movieHasGenresRepository enMovie.MovieHasGenresRepository
+	userVoteRepository       enUserVote.UserVoteRepository
 }
 
-func NewUserVoteUseCase(movieRepository enMovie.MovieRepository, userVoteRepository enUserVote.UserVoteRepository) enUserVote.UserVoteUseCase {
+func NewUserVoteUseCase(
+	uow enUtil.UnitOfWork,
+	movieRepository enMovie.MovieRepository,
+	movieGenresRepository enMovieGenres.MovieGenresRepository,
+	movieHasGenresRepository enMovie.MovieHasGenresRepository,
+	userVoteRepository enUserVote.UserVoteRepository,
+) enUserVote.UserVoteUseCase {
 	return userVoteUC{
-		movieRepository:    movieRepository,
-		userVoteRepository: userVoteRepository,
+		uow:                      uow,
+		movieRepository:          movieRepository,
+		movieGenresRepository:    movieGenresRepository,
+		movieHasGenresRepository: movieHasGenresRepository,
+		userVoteRepository:       userVoteRepository,
 	}
 }

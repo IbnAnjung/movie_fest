@@ -95,7 +95,12 @@ func Start(ctx context.Context) (func(), error) {
 	authenticationUseCase := authenticationUC.NewAuthenticationUC(
 		jwt, crypt, uof, validator, stringGenerator, userRepository, userTokenRepository,
 	)
-	userVoteUseCase := userVoteUC.NewUserVoteUseCase(movieRepository, userVoteRepository)
+	userVoteUseCase := userVoteUC.NewUserVoteUseCase(
+		uof,
+		movieRepository,
+		movieGenresRepository,
+		movieHasGenresRepository,
+		userVoteRepository)
 
 	// router
 	router := LoadGinRouter(

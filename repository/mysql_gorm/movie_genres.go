@@ -48,6 +48,22 @@ func (r *movieGenresRepository) IncreaseViews(ctx *context.Context, genresIDS []
 		UpdateColumn("views_counter", gorm.Expr("views_counter + ? ", 1)).Error
 }
 
+func (r *movieGenresRepository) IncreaseVotes(ctx *context.Context, genresIDS []int32) error {
+	db := getTxSessionDB(*ctx, r.db)
+
+	return db.Model(&models.MovieGenres{}).
+		Where("id IN (?)", genresIDS).
+		UpdateColumn("votes_counter", gorm.Expr("votes_counter + ? ", 1)).Error
+}
+
+func (r *movieGenresRepository) DecreaseVotes(ctx *context.Context, genresIDS []int32) error {
+	db := getTxSessionDB(*ctx, r.db)
+
+	return db.Model(&models.MovieGenres{}).
+		Where("id IN (?)", genresIDS).
+		UpdateColumn("votes_counter", gorm.Expr("votes_counter - ? ", 1)).Error
+}
+
 func (r *movieGenresRepository) GetMostView(ctx *context.Context) (mg enMovieGenres.MovieGenres, err error) {
 	db := getTxSessionDB(*ctx, r.db)
 

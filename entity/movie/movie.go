@@ -24,6 +24,8 @@ type MovieRepository interface {
 	GetMostView(ctx *context.Context) (movie Movie, err error)
 	UpdateMovieMetaData(ctx *context.Context, newMovie *Movie) (err error)
 	IncreaseViews(ctx *context.Context, movieID int64) error
+	IncreaseVotes(ctx *context.Context, movieID int64) error
+	DecreaseVotes(ctx *context.Context, movieID int64) error
 	GetListPagination(ctx *context.Context, input ListMovieWithPaginationInput) (movies []Movie, totalRaw int64, err error)
 }
 

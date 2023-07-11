@@ -89,6 +89,22 @@ func (r *movieRepository) IncreaseViews(ctx *context.Context, movieID int64) err
 		UpdateColumn("views_counter", gorm.Expr("views_counter + ? ", 1)).Error
 }
 
+func (r *movieRepository) IncreaseVotes(ctx *context.Context, movieID int64) error {
+	db := getTxSessionDB(*ctx, r.db)
+
+	return db.Model(&models.Movie{}).
+		Where("id = ?", movieID).
+		UpdateColumn("votes_counter", gorm.Expr("votes_counter + ? ", 1)).Error
+}
+
+func (r *movieRepository) DecreaseVotes(ctx *context.Context, movieID int64) error {
+	db := getTxSessionDB(*ctx, r.db)
+
+	return db.Model(&models.Movie{}).
+		Where("id = ?", movieID).
+		UpdateColumn("votes_counter", gorm.Expr("votes_counter - ? ", 1)).Error
+}
+
 func (r *movieRepository) GetListPagination(ctx *context.Context, input enMovie.ListMovieWithPaginationInput) (movies []enMovie.Movie, totalRaw int64, err error) {
 	db := getTxSessionDB(*ctx, r.db)
 
