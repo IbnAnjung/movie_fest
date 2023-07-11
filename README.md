@@ -9,6 +9,9 @@ cd movie_fest
 
 cp .env.example .env
 
+mkdir public
+mkdir public/files
+
 #if You'r host already install mysql and redis, just run database/sql_dump.sql on you'r sql client.
 
 #or you can use docker for mysql and redis,
@@ -21,3 +24,26 @@ docker-compose up -d
 go run main.go
 
 ```
+
+# Endpint List                         
+- GET    /videos/*filepath         
+- HEAD   /videos/*filepath         
+- POST   /admin/movie/upload       
+- PUT    /admin/movie/meta         
+- GET    /admin/movie/votes/        
+- GET    /admin/movie/votes/most    
+- GET    /admin/movie/views/        
+- GET    /admin/movie/views/most    
+- GET    /admin/genres/views/most   
+- GET    /admin/genres/votes/most   
+- GET    /movie/                    
+- POST   /movie/vote                
+- POST   /movie/unvote              
+- GET    /movie/voted               
+- POST   /movie/start               
+- POST   /movie/playback            
+- GET    /movie/history             
+- GET    /movie/:id                 
+- POST   /auth/register             
+- POST   /auth/login                
+- POST   /auth/logout
