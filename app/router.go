@@ -49,22 +49,29 @@ func LoadGinRouter(
 	userVoteHandler := handler.NewUserVoteHandler(userVoteUC)
 
 	adminRoute := router.Group("/admin", adminMiddleware)
-	adminRoute.POST("/movie/upload", movieHandler.UplodeNewFile)
-	adminRoute.PUT("/movie/meta", movieHandler.UpdateMetaData)
-	adminRoute.GET("/movie/most-views", movieHandler.GetMostView)
+	adminMovieRoute := adminRoute.Group("/movie")
+	adminMovieRoute.POST("/upload", movieHandler.UplodeNewFile)
+	adminMovieRoute.PUT("/meta", movieHandler.UpdateMetaData)
 
-	adminRoute.GET("/movie-genres/most-views", movieGenresHandler.GetMostView)
+	adminMovieViewsRoute := adminMovieRoute.Group("/views")
+	adminMovieViewsRoute.GET("/", movieHandler.GetViews)
+	adminMovieViewsRoute.GET("/most", movieHandler.GetMostView)
+	// adminMovieRoute.GET("/voted/most")
+	adminGenreRoute := adminRoute.Group("/genres")
+	adminGenreViewsRoute := adminGenreRoute.Group("/views")
+	adminGenreViewsRoute.GET("/most", movieGenresHandler.GetMostView)
 
 	// movie
 	movieRoute := router.Group("/movie")
 	movieRoute.GET("/", movieHandler.GetListMoviewPagination)
-	movieRoute.GET("/:id", movieHandler.GetDetailMovie)
 
 	// movie - authenticated
 	movieAuth := movieRoute.Group("/").Use(userMiddleware)
 	movieAuth.POST("/vote", userVoteHandler.Vote)
 	movieAuth.POST("/unvote", userVoteHandler.Unvote)
 	movieAuth.GET("/voted", userVoteHandler.GetUserVotedMovies)
+
+	movieRoute.GET("/:id", movieHandler.GetDetailMovie)
 
 	//auth
 	authRoute := router.Group("/auth")

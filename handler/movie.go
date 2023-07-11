@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -112,6 +111,49 @@ func (h movieHandler) GetDetailMovie(c *gin.Context) {
 	utils.SuccessResponse(c, http.StatusOK, "success", response)
 }
 
+func (h movieHandler) GetViews(c *gin.Context) {
+	req := presenters.MovieViewsRequest{}
+	if err := c.ShouldBind(&req); err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	views := strings.Split(req.Views, ":")
+	minView := int64(0)
+	maxView := int64(0)
+
+	if v, err := strconv.ParseInt(views[0], 10, 64); err == nil {
+		minView = v
+	}
+
+	if len(views) > 1 {
+		if v, err := strconv.ParseInt(views[1], 10, 64); err == nil {
+			maxView = v
+		}
+	}
+
+	mov, err := h.movieUC.GetViews(c, enMovie.GetViewsInput{
+		MinViews: minView,
+		MaxViews: maxView,
+		Sort:     req.Sort,
+	})
+	if err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	response := []presenters.MovieMostViewResponse{}
+	for _, m := range mov {
+		response = append(response, presenters.MovieMostViewResponse{
+			ID:    m.ID,
+			Title: m.Title,
+			Views: m.ViewsCounter,
+		})
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "success", response)
+}
+
 func (h movieHandler) GetMostView(c *gin.Context) {
 	mov, err := h.movieUC.GetMostView(c)
 	if err != nil {
@@ -136,29 +178,12 @@ func (h movieHandler) GetListMoviewPagination(c *gin.Context) {
 		return
 	}
 
-	views := strings.Split(req.Views, ":")
-	minView := int64(0)
-	maxView := int64(0)
-
-	if v, err := strconv.ParseInt(views[0], 10, 64); err == nil {
-		minView = v
-	}
-
-	if len(views) > 1 {
-		if v, err := strconv.ParseInt(views[1], 10, 64); err == nil {
-			maxView = v
-		}
-	}
-
-	fmt.Print("views => ", views, minView, maxView)
 	output, err := h.movieUC.GetListMovieWithPagination(c, enMovie.ListMovieWithPaginationInput{
 		MetaPagination: enUtil.MetaPagination{
 			Limit: req.Limit,
 			Page:  req.Page,
 		},
-		Search:   req.Search,
-		MinViews: minView,
-		MaxViews: maxView,
+		Search: req.Search,
 	})
 
 	if err != nil {

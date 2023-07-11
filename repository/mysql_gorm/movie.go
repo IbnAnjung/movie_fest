@@ -115,14 +115,6 @@ func (r *movieRepository) GetListPagination(ctx *context.Context, input enMovie.
 	query := db.Model(&models.Movie{}).Select(fmt.Sprintf("DISTINCT %s.*", m)).
 		Order("id")
 
-	if input.MinViews != 0 {
-		query.Where(fmt.Sprintf("%s.views_counter >= ?", m), input.MinViews)
-	}
-
-	if input.MaxViews != 0 {
-		query.Where(fmt.Sprintf("%s.views_counter <= ?", m), input.MaxViews)
-	}
-
 	if input.Search != "" {
 		query.Joins(fmt.Sprintf("JOIN %s ON %s.id = %s.movie_id", mhg, m, mhg)).
 			Joins(fmt.Sprintf("JOIN %s ON %s.movie_genre_id = %s.id", mg, mhg, mg)).
@@ -146,6 +138,37 @@ func (r *movieRepository) GetListPagination(ctx *context.Context, input enMovie.
 	for _, m := range mMovies {
 		movie := enMovie.Movie{}
 		m.ToEntity(&movie)
+
+		movies = append(movies, movie)
+	}
+
+	return
+}
+
+func (r *movieRepository) GetAllMovieViews(ctx *context.Context, input enMovie.GetViewsInput) (movies []enMovie.Movie, err error) {
+	db := getTxSessionDB(*ctx, r.db)
+
+	m := []models.Movie{}
+
+	query := db.Model(&models.Movie{}).Select("*").
+		Order(fmt.Sprintf("views_counter %s", input.Sort))
+
+	if input.MinViews != 0 {
+		query.Where("views_counter >= ?", input.MinViews)
+	}
+
+	if input.MaxViews != 0 {
+		query.Where("views_counter <= ?", input.MaxViews)
+	}
+
+	err = query.Find(&m).Error
+	if err != nil {
+		return
+	}
+
+	for _, v := range m {
+		movie := enMovie.Movie{}
+		v.ToEntity(&movie)
 
 		movies = append(movies, movie)
 	}
