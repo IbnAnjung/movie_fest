@@ -10,6 +10,7 @@ import (
 	authenticationUC "github.com/IbnAnjung/movie_fest/usecase/authentication"
 	movieUC "github.com/IbnAnjung/movie_fest/usecase/movie"
 	movieGenresUC "github.com/IbnAnjung/movie_fest/usecase/movie_genres"
+	userVoteUC "github.com/IbnAnjung/movie_fest/usecase/user_vote"
 	"github.com/IbnAnjung/movie_fest/utils"
 )
 
@@ -76,6 +77,7 @@ func Start(ctx context.Context) (func(), error) {
 	movieGenresRepository := mysql_gorm.NewMovieGenresRepository(gormDb)
 	movieHasGenresRepository := mysql_gorm.NewMovieHasGenresRepository(gormDb)
 	userRepository := mysql_gorm.NewUserRepository(gormDb)
+	userVoteRepository := mysql_gorm.NewUserVoteRepository(gormDb)
 	// userTokenRepository := mysql_gorm.NewUserTokenRepository(gormDb)
 	userTokenRepository := redis.NewUserTokenRepository(redisConn)
 
@@ -93,9 +95,17 @@ func Start(ctx context.Context) (func(), error) {
 	authenticationUseCase := authenticationUC.NewAuthenticationUC(
 		jwt, crypt, uof, validator, stringGenerator, userRepository, userTokenRepository,
 	)
+	userVoteUseCase := userVoteUC.NewUserVoteUseCase(movieRepository, userVoteRepository)
 
 	// router
-	router := LoadGinRouter(*conf, stringGenerator, userTokenRepository, movieUsecase, movieGenresUseCase, authenticationUseCase)
+	router := LoadGinRouter(
+		*conf,
+		stringGenerator,
+		userTokenRepository,
+		movieUsecase,
+		userVoteUseCase,
+		movieGenresUseCase,
+		authenticationUseCase)
 
 	httpCleanup, err := driver.RunGinHttpServer(ctx, router, driver.LoadHttpConfig(conf.Http.Port))
 	if err != nil {

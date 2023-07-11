@@ -6,6 +6,7 @@ import (
 	enAuthentication "github.com/IbnAnjung/movie_fest/entity/authentication"
 	enMovie "github.com/IbnAnjung/movie_fest/entity/movie"
 	enMovieGenres "github.com/IbnAnjung/movie_fest/entity/movie_genres"
+	enUserVote "github.com/IbnAnjung/movie_fest/entity/user_vote"
 	enUser "github.com/IbnAnjung/movie_fest/entity/users"
 	enUtils "github.com/IbnAnjung/movie_fest/entity/utils"
 	"github.com/IbnAnjung/movie_fest/handler"
@@ -18,6 +19,7 @@ func LoadGinRouter(
 	stringGenerator enUtils.StringGenerator,
 	userTokenRepository enUser.UserTokenRepository,
 	movieUC enMovie.MovieUseCase,
+	userVoteUC enUserVote.UserVoteUseCase,
 	movieGenresUC enMovieGenres.MovieGenresUseCase,
 	authenticationUC enAuthentication.AuthenticationUsecase,
 ) *gin.Engine {
@@ -44,6 +46,7 @@ func LoadGinRouter(
 	movieHandler := handler.NewMovieHandler(movieUC)
 	movieGenresHandler := handler.NewMovieGenresHandler(movieGenresUC)
 	authHandler := handler.NewAuthenticationHandler(authenticationUC)
+	userVoteHandler := handler.NewUserVoteHandler(userVoteUC)
 
 	adminRoute := router.Group("/admin", adminMiddleware)
 	adminRoute.POST("/movie/upload", movieHandler.UplodeNewFile)
@@ -52,14 +55,22 @@ func LoadGinRouter(
 
 	adminRoute.GET("/movie-genres/most-views", movieGenresHandler.GetMostView)
 
-	// public
-	router.GET("/movie/:id", movieHandler.GetDetailMovie)
-	router.GET("/movie", movieHandler.GetListMoviewPagination)
+	// movie
+	movieRoute := router.Group("/movie")
+	movieRoute.GET("/", movieHandler.GetListMoviewPagination)
+	movieRoute.GET("/:id", movieHandler.GetDetailMovie)
+
+	// movie - authenticated
+	movieAuth := movieRoute.Group("/").Use(userMiddleware)
+	movieAuth.POST("/vote", userVoteHandler.Vote)
+	movieAuth.POST("/unvote", userVoteHandler.Unvote)
+	movieAuth.GET("/voted", userVoteHandler.GetUserVotedMovies)
 
 	//auth
 	authRoute := router.Group("/auth")
 	authRoute.POST("/register", authHandler.RegisterUser)
 	authRoute.POST("/login", authHandler.Login)
 	authRoute.Use(userMiddleware).POST("/logout", authHandler.Logout)
+
 	return router
 }

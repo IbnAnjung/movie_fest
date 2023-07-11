@@ -41,7 +41,8 @@ func NewGormOrm(
 	)
 
 	db, err := gorm.Open(gormDialect, &gorm.Config{
-		Logger: newLogger,
+		Logger:         newLogger,
+		TranslateError: true,
 	})
 
 	return db, err
