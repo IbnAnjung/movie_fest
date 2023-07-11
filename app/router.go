@@ -65,6 +65,9 @@ func LoadGinRouter(
 	adminGenreViewsRoute := adminGenreRoute.Group("/views")
 	adminGenreViewsRoute.GET("/most", movieGenresHandler.GetMostView)
 
+	adminGenreVotesRoute := adminGenreRoute.Group("/votes")
+	adminGenreVotesRoute.GET("/most", movieGenresHandler.GetMostVote)
+
 	// movie
 	movieRoute := router.Group("/movie")
 	movieRoute.GET("/", movieHandler.GetListMoviewPagination)

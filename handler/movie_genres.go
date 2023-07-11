@@ -34,3 +34,19 @@ func (h movieGenresHandler) GetMostView(c *gin.Context) {
 
 	utils.SuccessResponse(c, http.StatusOK, "success", response)
 }
+
+func (h movieGenresHandler) GetMostVote(c *gin.Context) {
+	mg, err := h.movieGenresUC.GetMostView(c)
+	if err != nil {
+		utils.GeneralErrorResponse(c, err)
+		return
+	}
+
+	response := presenters.MovieGenresMostVoteResponse{
+		ID:    mg.ID,
+		Name:  mg.Name,
+		Votes: mg.VotesCounter,
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, "success", response)
+}

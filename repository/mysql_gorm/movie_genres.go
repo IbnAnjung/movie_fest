@@ -76,3 +76,16 @@ func (r *movieGenresRepository) GetMostView(ctx *context.Context) (mg enMovieGen
 	m.ToEntity(&mg)
 	return
 }
+
+func (r *movieGenresRepository) GetMostVote(ctx *context.Context) (mg enMovieGenres.MovieGenres, err error) {
+	db := getTxSessionDB(*ctx, r.db)
+
+	m := models.MovieGenres{}
+	if err = db.Order("votes_counter DESC").
+		Find(&m).Error; err != nil {
+		return
+	}
+
+	m.ToEntity(&mg)
+	return
+}
